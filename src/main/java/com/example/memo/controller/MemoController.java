@@ -73,18 +73,46 @@ public class MemoController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        if (dto.getTitle() == null || dto.getContents() == null)
+        if (dto.getTitle() == null || dto.getContents() == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
 
         memo.update(dto);
 
         return new ResponseEntity<>(new MemoResponseDto(memo), HttpStatus.OK);
     }
 
+    @PatchMapping("/{id}")
+    public ResponseEntity<MemoResponseDto> updateTitle(
+            @PathVariable Long id,
+            @RequestBody MemoRequestDto dto
+    ) {
+        Memo memo = memoList.get(id);
+
+        // NPE 방지
+        if (memo == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        if (dto.getTitle() == null || dto.getContents() != null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        memo.updateTitle(dto);
+
+        return new ResponseEntity<>(new MemoResponseDto(memo), HttpStatus.OK);
+
+    }
     @DeleteMapping("/{id}")
-    public void deleteMemo(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteMemo(@PathVariable Long id) {
 
-        memoList.remove(id);
+        // memoList의 key값에 id를 포함하고 있다면
+        if (memoList.containsKey(id)) {
+            memoList.remove(id);
 
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 }
